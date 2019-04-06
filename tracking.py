@@ -22,20 +22,22 @@ def run_main():
     
     while True:
         ret, frame = cap.read()
+        if ret:
+            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            dst = cv2.calcBackProject([hsv], [0], roi_hist, [0,180], 1)
 
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        dst = cv2.calcBackProject([hsv], [0], roi_hist, [0,180], 1)
+            ret, track_window = cv2.meanShift(dst, track_window, term_crit)
 
-        ret, track_window = cv2.meanShift(dst, track_window, term_crit)
-
-        x,y,w,h = track_window
-        cv2.rectangle(frame, (x,y), (x+w,y+h), 255, 2)
-        #cv2.putText(frame, 'Tracked', (x-25,y-10), cv2.FONT_HERSHEY_SIMPLEX,
-         #   1, (255,255,255), 2, cv2.CV_AA)
+            x,y,w,h = track_window
+            cv2.rectangle(frame, (x,y), (x+w,y+h), 255, 2)
+            #cv2.putText(frame, 'Tracked', (x-25,y-10), cv2.FONT_HERSHEY_SIMPLEX,
+            #   1, (255,255,255), 2, cv2.CV_AA)
         
-        cv2.imshow('Tracking', frame)
+            cv2.imshow('Tracking', frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        else:
             break
 
     cap.release()
